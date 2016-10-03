@@ -4,6 +4,8 @@ import com.androidquery.AQuery;
 import com.androidquery.callback.AjaxCallback;
 import com.androidquery.callback.AjaxStatus;
 
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -14,7 +16,6 @@ import android.widget.TextView;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
@@ -24,6 +25,9 @@ public class MainActivity extends AppCompatActivity {
 
     MainActivity activity;
     AQuery aq;
+
+    private SharedPreferences mySettings;
+    String localJson;
 
     public static float dY, centerH;
 
@@ -48,6 +52,7 @@ public class MainActivity extends AppCompatActivity {
                 wind;
 
     DateParser  dp;
+    Boolean noAjax = false;
 
     // ассоц. массив с углами поворота для направления ветра
     Map<String, Float> wdd  = new HashMap<String, Float>();
@@ -62,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
         // ассоц. углы
         wdd.put("N", 0f);       wdd.put("NNE", 22.5f);    wdd.put("NE", 45f);      wdd.put("ENE", 67.5f);
         wdd.put("E", 90f);      wdd.put("ESE", 112.5f);   wdd.put("SE", 135f);     wdd.put("SSE", 257.5f);
-        wdd.put("S", 180f);     wdd.put("SSW", 202.5f);   wdd.put("SW", 225f);     wdd.put("WSW", 147.5f);
+        wdd.put("S", 180f);     wdd.put("SSW", 202.5f);   wdd.put("SW", 225f);     wdd.put("WSW", 247.5f);
         wdd.put("W", 270f);     wdd.put("WNW", 292.5f);   wdd.put("NW", 315f);     wdd.put("NNW", 337.5f);
 
         // направления ветра
@@ -125,6 +130,11 @@ public class MainActivity extends AppCompatActivity {
         activity = this;
         aq = new AQuery(activity);
 
+        mySettings = getSharedPreferences("mySettings", Context.MODE_PRIVATE);
+        if (mySettings.contains("localJson")) {
+            localJson = mySettings.getString("localJson", "{}");
+        }
+
         initMyData();
 
         myTimer.schedule(new TimerTask() {
@@ -133,21 +143,41 @@ public class MainActivity extends AppCompatActivity {
                 Log.d("mylog", "timer run: loadData");
                 loadData();
             }
-        }, 0, 10000);
+        }, 0, 300000);
     }
-
+    @Override
     protected void onStop(){
         super.onStop();
+        noAjax = true;
+    }
+    @Override
+    protected void onPause(){
+        super.onPause();
+        noAjax = true;
+        if(localJson != null) {
+            SharedPreferences.Editor editor = mySettings.edit();
+            editor.putString("localJson", localJson);
+            editor.apply();
+        }
+    }
+    @Override
+    protected void onResume(){
+        super.onResume();
+        noAjax = false;
+        loadData();
+    }
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
         if (myTimer != null) {
             myTimer.cancel();
             myTimer = null;
         }
     }
-
     private JSONObject loadDataLocal() {
         JSONObject json = null;
         try {
-            json = new JSONObject("{\"wind_direction\":\"NNE\",\"temp_fact\":\"12.7\"}");
+            json = new JSONObject(localJson);
         }catch (JSONException e){
             Log.d("mylog", "loadDataLocal: exeption :"+ e);
         }
@@ -156,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadData(){
         Log.d("mylog", "loadData: called");
-        aq.ajax(API_URL, null, JSONObject.class, new AjaxCallback<JSONObject>() {
+        if(!noAjax) aq.ajax(API_URL, null, JSONObject.class, new AjaxCallback<JSONObject>() {
             @Override
             public void callback(String url, JSONObject json, AjaxStatus status) {
                 if(json != null) {
@@ -260,8 +290,11 @@ public class MainActivity extends AppCompatActivity {
 
             sun_moon_rise.setPadding((int) dx_right,(int) dy, (int) dx_left, 0);
 
+            localJson = json.toString();
+
         }catch (JSONException e){
             Log.e("mylog", "showWeather: json error!", e);
+            showWeather(loadDataLocal());
         }
     }
 }

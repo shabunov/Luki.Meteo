@@ -10,7 +10,6 @@
     android:paddingRight="0dp"
     android:paddingTop="8dp"
     tools:context="ru.velbloki.lukimeteo.MainActivity">
-
     <GridLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
