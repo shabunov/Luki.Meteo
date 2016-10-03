@@ -1,3 +1,33 @@
 <resources>
     <string name="app_name">Луки.Метео</string>
+    <string name="loading">Загрузка...</string>
+
+    <string name="wind_N">С</string>
+    <string name="wind_E">В</string>
+    <string name="wind_S">Ю</string>
+    <string name="wind_W">З</string>
+
+    <string name="wind_NNE">ССВ</string>
+    <string name="wind_ESE">ВСВ</string>
+    <string name="wind_SSW">ЮЮЗ</string>
+    <string name="wind_WNW">ЗСЗ</string>
+
+    <string name="wind_NE">СВ</string>
+    <string name="wind_SE">ЮВ</string>
+    <string name="wind_SW">ЮЗ</string>
+    <string name="wind_NW">СЗ</string>
+
+    <string name="wind_ENE">ЗСЗ</string>
+    <string name="wind_SSE">ЮЮВ</string>
+    <string name="wind_WSW">ЗЮЗ</string>
+    <string name="wind_NNW">ССЗ</string>
+
+    <string name="sunny">ясно</string>
+    <string name="partlycloudy">пасмурно</string>
+    <string name="rainy">дождь</string>
+    <string name="cloudy">облачно</string>
+    <string name="snowy">снег</string>
+
+    <string name="pressure_metric">мм.рт.ст</string>
+    <string name="wind_metric">м/с</string>
 </resources>
